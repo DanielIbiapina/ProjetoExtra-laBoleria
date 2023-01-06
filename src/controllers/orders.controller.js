@@ -2,7 +2,29 @@ import { connectionDB } from "../database/db.js"
 
 export async function postOrder(req, res) {
     const { clientId, cakeId, quantity, totalPrice } = req.body
+
+    const clientIdExiste = await connectionDB.query(
+        'SELECT id FROM clients WHERE id=$1;',
+        [clientId]
+      );
+      console.log(clientIdExiste.rowCount)
+      if(clientIdExiste.rowCount === 0){
+        res.status(409).send("Esse cliente não existe!")
+        return
+      }
+
+      const cakeIdExiste = await connectionDB.query(
+        'SELECT id FROM cakes WHERE id=$1;',
+        [cakeId]
+      );
+      console.log(cakeIdExiste.rowCount)
+      if(cakeIdExiste.rowCount === 0){
+        res.status(409).send("Esse bolo não existe!")
+        return
+      }
+
     await connectionDB.query('INSERT INTO orders ("clientId", "cakeId", "quantity", "totalPrice") VALUES ($1, $2, $3, $4);', [clientId, cakeId, quantity, totalPrice])
+    res.sendStatus(201)
 }
 
 export async function getOrders(req, res) {

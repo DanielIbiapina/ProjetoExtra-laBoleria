@@ -3,6 +3,7 @@ import { connectionDB } from "../database/db.js"
 export async function postClient (req, res){
     const {name, address, phone} = req.body
     await connectionDB.query('INSERT INTO clients (name, address, phone) VALUES ($1, $2, $3);', [name, address, phone])
+    res.sendStatus(201)
 }
 export async function getClientOrders (req, res){
     const {id} = req.params

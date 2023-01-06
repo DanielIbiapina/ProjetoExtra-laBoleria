@@ -1,10 +1,12 @@
 import {Router} from "express";
 import { getClientOrders, postClient } from "../controllers/clients.controller.js";
+import { validateSchema } from "../middlewares/schema.validation.js";
+import { clientsSchema } from "../schemas/clients.schema.js";
 
 
 const router = Router();
 
-router.post("/clients", postClient)
+router.post("/clients", validateSchema(clientsSchema), postClient)
 router.get("/clients/:id/orders", getClientOrders)
 
 
