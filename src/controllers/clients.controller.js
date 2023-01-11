@@ -7,6 +7,18 @@ export async function postClient (req, res){
 }
 export async function getClientOrders (req, res){
     const {id} = req.params
-    const clientOrders = await connectionDB.query('SELECT * FROM orders WHERE orders."clientId"  = $1;', [id])
+
+    const clientIdExiste = await connectionDB.query(
+        'SELECT id FROM clients WHERE id=$1;',
+        [id]
+      );
+      console.log(clientIdExiste.rowCount)
+      if(clientIdExiste.rowCount === 0){
+        res.status(404).send("Esse cliente não existe!")
+        return
+      }
+
+      const clientOrders = await connectionDB.query('SELECT orders.id AS "orderId", orders.quantity, orders."createdAt", orders."totalPrice", cakes.name AS "cakeName" FROM orders JOIN clients ON orders."clientId" = clients.id JOIN cakes ON orders."cakeId" = cakes.id WHERE orders."clientId"  = $1;', [id])
+    //const clientOrders = await connectionDB.query('SELECT * FROM orders WHERE orders."clientId"  = $1;', [id])
     res.send(clientOrders.rows)
 }

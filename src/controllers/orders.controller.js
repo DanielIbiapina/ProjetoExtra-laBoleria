@@ -9,7 +9,7 @@ export async function postOrder(req, res) {
       );
       console.log(clientIdExiste.rowCount)
       if(clientIdExiste.rowCount === 0){
-        res.status(409).send("Esse cliente não existe!")
+        res.status(404).send("Esse cliente não existe!")
         return
       }
 
@@ -19,7 +19,7 @@ export async function postOrder(req, res) {
       );
       console.log(cakeIdExiste.rowCount)
       if(cakeIdExiste.rowCount === 0){
-        res.status(409).send("Esse bolo não existe!")
+        res.status(404).send("Esse bolo não existe!")
         return
       }
 
@@ -28,10 +28,18 @@ export async function postOrder(req, res) {
 }
 
 export async function getOrders(req, res) {
+    const {date} = req.query
+    
     try {
         const ordersArray = []
         let objeto;
-        const orders = await connectionDB.query('SELECT clients.*, cakes.*, clients.id AS "clientId", clients.name AS "clientName", cakes.*, orders.id AS "orderId", orders."createdAt", orders.quantity, orders."totalPrice" FROM orders JOIN clients ON orders."clientId" = clients.id JOIN cakes ON orders."cakeId" = cakes.id;')
+        let orders;
+        if(date){
+        
+         orders = await connectionDB.query(`SELECT clients.*, cakes.*, clients.id AS "clientId", clients.name AS "clientName", cakes.*, orders.id AS "orderId", orders."createdAt", orders.quantity, orders."totalPrice" FROM orders JOIN clients ON orders."clientId" = clients.id JOIN cakes ON orders."cakeId" = cakes.id WHERE orders."createdAt"::date = $1;`, [date])
+        } else{
+         orders = await connectionDB.query('SELECT clients.*, cakes.*, clients.id AS "clientId", clients.name AS "clientName", cakes.*, orders.id AS "orderId", orders."createdAt", orders.quantity, orders."totalPrice" FROM orders JOIN clients ON orders."clientId" = clients.id JOIN cakes ON orders."cakeId" = cakes.id;')
+        }
         for (let count = 0; count <orders.rowCount; count++){
              objeto = {
                 client: {
@@ -54,6 +62,10 @@ export async function getOrders(req, res) {
             }
             ordersArray.push(objeto)
         }
+        if(ordersArray.length == 0){
+            res.send(ordersArray).status(404)
+            return
+        }
         res.send(ordersArray)
 
 
@@ -65,6 +77,17 @@ export async function getOrders(req, res) {
 
 export async function getOrdersById(req, res) {
     const {id} = req.params
+
+    const orderIdExiste = await connectionDB.query(
+        'SELECT id FROM orders WHERE id=$1;',
+        [id]
+      );
+      console.log(orderIdExiste.rowCount)
+      if(orderIdExiste.rowCount === 0){
+        res.status(404).send("Esse pedido não existe!")
+        return
+      }
+
     try {
         const ordersArray = []
         let objeto;
