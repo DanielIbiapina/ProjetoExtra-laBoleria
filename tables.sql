@@ -20,3 +20,23 @@ CREATE TABLE "orders" (
         "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(), 
         "totalPrice" NUMERIC NOT NULL
 );
+CREATE TABLE messages (
+  id SERIAL PRIMARY KEY,
+  "from" VARCHAR(255) NOT NULL,
+  "to" VARCHAR(255) NOT NULL,
+  text TEXT NOT NULL,
+  type VARCHAR(20) NOT NULL,
+  time TIMESTAMP NOT NULL
+);
+CREATE TABLE status (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  online BOOLEAN NOT NULL DEFAULT false,
+  last_activity TIMESTAMP,
+  CONSTRAINT unique_name UNIQUE (name)
+);
+
+CREATE TABLE "participants" (
+        "id" serial NOT NULL PRIMARY KEY,
+        "name" VARCHAR NOT NULL
+);
