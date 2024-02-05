@@ -92,7 +92,10 @@ export async function postMessage(req, res) {
     type,
     time: new Date().toLocaleTimeString(),
   };
-  console.log(newMessage);
+  const formattedTime = await connectionDB.query(
+    'SELECT TO_TIMESTAMP($1, $2) AS formatted_time',
+    [newMessage.time, 'HH24:MI:SS']
+  );
   // Adiciona a nova mensagem à tabela de mensagens
   await connectionDB.query(
     'INSERT INTO messages (\"from\", \"to\", text, type, time) VALUES ($1, $2, $3, $4, $5);',
@@ -101,7 +104,7 @@ export async function postMessage(req, res) {
       newMessage.to,
       newMessage.text,
       newMessage.type,
-      newMessage.time,
+      formattedTime.rows[0].formatted_time,
     ]
   );
 
