@@ -90,21 +90,15 @@ export async function postMessage(req, res) {
     to: to || "Todos",
     text,
     type,
-    time: new Date().toLocaleTimeString(),
   };
-  const formattedTime = await connectionDB.query(
-    'SELECT TO_TIMESTAMP($1, $2) AS formatted_time',
-    [newMessage.time, 'HH24:MI:SS']
-  );
   // Adiciona a nova mensagem à tabela de mensagens
   await connectionDB.query(
-    'INSERT INTO messages (\"from\", \"to\", text, type, time) VALUES ($1, $2, $3, $4, $5);',
+    'INSERT INTO messages (\"from\", \"to\", text, type, time) VALUES ($1, $2, $3, $4, NOW());',
     [
       newMessage.from,
       newMessage.to,
       newMessage.text,
       newMessage.type,
-      formattedTime.rows[0].formatted_time,
     ]
   );
 
@@ -113,7 +107,7 @@ export async function postMessage(req, res) {
 
 export async function getMessages(req, res) {
   try {
-    const result = await connectionDB.query("SELECT * FROM messages;");
+    const result = await connectionDB.query("SELECT \"from\", \"to\", text, type, TO_CHAR(time, 'HH24:MI:SS') FROM messages;");
     const messages = result.rows;
 
     res.json(messages);
