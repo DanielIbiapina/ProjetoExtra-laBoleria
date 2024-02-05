@@ -95,7 +95,7 @@ export async function postMessage(req, res) {
   console.log(newMessage);
   // Adiciona a nova mensagem à tabela de mensagens
   await connectionDB.query(
-    'INSERT INTO messages ("from", "to", text, type, time) VALUES ($1, $2, $3, $4, $5);',
+    'INSERT INTO messages (\"from\", \"to\", text, type, time) VALUES ($1, $2, $3, $4, $5);',
     [
       newMessage.from,
       newMessage.to,
