@@ -92,7 +92,7 @@ export async function postMessage(req, res) {
     type,
     time: new Date().toLocaleTimeString(),
   };
-
+  console.log(newMessage);
   // Adiciona a nova mensagem à tabela de mensagens
   await connectionDB.query(
     'INSERT INTO messages ("from", "to", text, type, time) VALUES ($1, $2, $3, $4, $5);',
@@ -116,6 +116,18 @@ export async function getMessages(req, res) {
     res.json(messages);
   } catch (error) {
     console.error("Erro ao buscar mensagens:", error);
+    res.status(500).json({ error: "Erro interno do servidor." });
+  }
+}
+
+export async function getParticipants(req, res) {
+  try {
+    const result = await connectionDB.query("SELECT * FROM participants;");
+    const participants = result.rows;
+
+    res.json(participants);
+  } catch (error) {
+    console.error("Erro ao buscar participantes:", error);
     res.status(500).json({ error: "Erro interno do servidor." });
   }
 }
